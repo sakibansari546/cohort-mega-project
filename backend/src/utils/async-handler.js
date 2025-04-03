@@ -5,3 +5,6 @@ const asyncHandler = (requestHandler) => {
 };
 
 export default asyncHandler;
+
+// const hekl = asyncHandler(async () => {});
+
