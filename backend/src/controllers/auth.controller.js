@@ -1,10 +1,9 @@
 import asyncHandler from "../utils/async-handler.js";
 import ApiResponse from "../utils/api-response.js";
-import {} from "express-validator";
+import { matchedData } from "express-validator";
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, username, password, role } = req.body;
-  console.log(email, username, password, role);
+  const { email, username, password, role } = matchedData(req);
 
   res
     .status(200)

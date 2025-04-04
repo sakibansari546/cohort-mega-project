@@ -45,4 +45,34 @@ const userRegistrationValidator = () => {
   ];
 };
 
-export { userRegistrationValidator };
+const userRegistrationValidationSchema = {
+  email: {
+    trim: true,
+    notEmpty: {
+      errorMessage: "Email is required!",
+    },
+    isEmail: {
+      errorMessage: "Email is invalid!",
+    },
+  },
+  username: {
+    trim: true,
+    notEmpty: {
+      errorMessage: "Username is required!",
+    },
+    isLength: {
+      options: {
+        min: 3,
+      },
+      errorMessage: "Username must be at least 3 characters long!",
+    },
+    isLength: {
+      options: {
+        max: 15,
+      },
+      errorMessage: "Username must not exceed 15 characters!",
+    },
+  },
+};
+
+export { userRegistrationValidator, userRegistrationValidationSchema };
