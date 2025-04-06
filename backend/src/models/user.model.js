@@ -1,6 +1,8 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
+import { AvailableUserRole, UserRoleEnum } from "../utils/constants.js";
 
 let profile_imgs_name_list = [
   "Garfield",
@@ -67,6 +69,11 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is required!"],
+    },
+    role: {
+      type: String,
+      enum: AvailableUserRole,
+      default: UserRoleEnum.MEMBER,
     },
 
     isEmailVerified: {
@@ -135,7 +142,7 @@ userSchema.methods.generateTemporaryToken = function () {
     .createHash("sha256")
     .update(unHashedToken)
     .digest("hex");
-    
+
   const tokenExpiry = Date.now() + 20 * 60 * 1000; // 20 min
 
   return { unHashedToken, hashedToken, tokenExpiry };
