@@ -20,7 +20,7 @@ const validate = (req, res, next) => {
     }),
   );
   const err = new ApiError(422, errors.array()[0].msg, extractedError);
-  console.log(errors.errors);
+  // console.log(errors.errors);
 
   throw new ApiError(
     422,

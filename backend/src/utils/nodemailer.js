@@ -1,5 +1,5 @@
-// import dotenv from "dotenv";
-// dotenv.config();
+import dotenv from "dotenv";
+dotenv.config();
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 
@@ -50,3 +50,5 @@ const sendMail = async (options) => {
 //   subject: "Verify your email",
 //   mailgenContent: verificationEmailTemplate("sakib", "http....."),
 // });
+
+export { sendMail };

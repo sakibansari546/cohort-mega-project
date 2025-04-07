@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 import { AvailableUserRole, UserRoleEnum } from "../utils/constants.js";
 
@@ -39,11 +40,11 @@ const userSchema = new Schema(
         url: String,
         localPath: String,
       },
-      default: {
-        url: () => {
-          return `https://api.dicebear.com/6.x/${profile_imgs_collections_list[Math.floor(Math.random() * profile_imgs_collections_list.length)]}/svg?seed=${profile_imgs_name_list[Math.floor(Math.random() * profile_imgs_name_list.length)]}`;
-        },
-        localPath: "",
+      default: function () {
+        return {
+          url: `https://api.dicebear.com/6.x/${profile_imgs_collections_list[Math.floor(Math.random() * profile_imgs_collections_list.length)]}/svg?seed=${profile_imgs_name_list[Math.floor(Math.random() * profile_imgs_name_list.length)]}`,
+          localPath: "",
+        };
       },
     },
 
@@ -136,7 +137,7 @@ userSchema.methods.generateRefreshToken = async function () {
 };
 
 userSchema.methods.generateTemporaryToken = function () {
-  const unHashedToken = crypto.randomBytes(32).toString("hexs");
+  const unHashedToken = crypto.randomBytes(32).toString("hex");
 
   const hashedToken = crypto
     .createHash("sha256")

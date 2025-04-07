@@ -14,4 +14,6 @@ export const TaskStatusEnum = {
 
 export const AvailableTaskStatus = Object.values(TaskStatusEnum);
 
+export const UserDataSelectedFeilds =
+  "_id avatar username email role fullname isEmailVerified refreshToken createdAt updatedAt";
 // export { UserRoleEnum, AvailableUserRole, TaskStatusEnum, AvailableTaskStatus };
