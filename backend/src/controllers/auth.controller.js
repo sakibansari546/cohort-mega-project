@@ -111,6 +111,9 @@ const verifyUserEmial = asyncHandler(async (req, res) => {
     ],
   });
 
+  if (user && user.isEmailVerified)
+    throw new ApiError(403, "Email is already verified");
+
   if (!user) throw new ApiError(404, "Token is invalid or expire!");
 
   user.isEmailVerified = true;
@@ -256,6 +259,7 @@ const refreshToken = asyncHandler(async (req, res) => {
   const userRefreshToken = req.cookies.refreshToken;
   if (!userRefreshToken)
     throw new ApiError(404, "No Refresh token - Unauthorized");
+
   const decodedToken = jwt.verify(
     userRefreshToken,
     process.env.REFRESH_TOKEN_SECRET,

@@ -14,6 +14,7 @@ const userRegistrationValidator = () => {
       .trim()
       .notEmpty()
       .withMessage("Username is required")
+      .toLowerCase()
       .isLength({ min: 3 })
       .withMessage("Username must be at least 3 characters long!")
       .isLength({ max: 15 })
@@ -38,6 +39,7 @@ const userRegistrationValidator = () => {
       .trim()
       .notEmpty()
       .withMessage("Role is required!")
+      .toLowerCase()
       .isIn(AvailableUserRole)
       .withMessage(
         `Role must be one of the following: ${AvailableUserRole.join(", ")}!`,
