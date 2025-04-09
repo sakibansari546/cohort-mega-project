@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import { AvailableUserRole } from "../../utils/constants.js";
 
 const createProjectValidator = () => {
   return [
@@ -38,4 +39,94 @@ const updateProjectValidator = () => {
   ];
 };
 
-export { createProjectValidator, updateProjectValidator };
+const addMemberToProjectValidator = () => {
+  return [
+    param("projectId")
+      .trim()
+      .notEmpty()
+      .withMessage("projectId is required")
+      .isMongoId()
+      .withMessage("Invalid projectId format"),
+
+    param("memberId")
+      .trim()
+      .notEmpty()
+      .withMessage("memberId is required")
+      .isMongoId()
+      .withMessage("Invalid memberId format"),
+
+    body("role")
+      .trim()
+      .notEmpty()
+      .withMessage("Role is required")
+      .isIn(AvailableUserRole)
+      .withMessage(
+        `Role must be one of the following: ${AvailableUserRole.join()}`,
+      ),
+  ];
+};
+
+const deleteMemberValidator = () => {
+  return [
+    param("projectId")
+      .trim()
+      .notEmpty()
+      .withMessage("projectId is required")
+      .isMongoId()
+      .withMessage("Invalid projectId format"),
+
+    param("memberId")
+      .trim()
+      .notEmpty()
+      .withMessage("memberId is required")
+      .isMongoId()
+      .withMessage("Invalid memberId format"),
+  ];
+};
+
+const updateMemberRoleValidator = () => {
+  return [
+    param("projectId")
+      .trim()
+      .notEmpty()
+      .withMessage("projectId is required")
+      .isMongoId()
+      .withMessage("Invalid projectId format"),
+
+    param("memberId")
+      .trim()
+      .notEmpty()
+      .withMessage("memberId is required")
+      .isMongoId()
+      .withMessage("Invalid memberId format"),
+
+    body("role")
+      .trim()
+      .notEmpty()
+      .withMessage("Role is required")
+      .isIn(AvailableUserRole)
+      .withMessage(
+        `Role must be one of the following: ${AvailableUserRole.join()}`,
+      ),
+  ];
+};
+
+const searchMemberForAddInProjectValidator = () => {
+  return [
+    body("email")
+      .trim()
+      .notEmpty()
+      .withMessage("Email is required!")
+      .isEmail()
+      .withMessage("Email is invalid!"),
+  ];
+};
+
+export {
+  createProjectValidator,
+  updateProjectValidator,
+  addMemberToProjectValidator,
+  deleteMemberValidator,
+  updateMemberRoleValidator,
+  searchMemberForAddInProjectValidator,
+};
