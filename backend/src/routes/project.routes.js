@@ -29,20 +29,20 @@ router.get("/projects", isAuth, getProjects);
 router.get("/:projectId", isAuth, getProjectById);
 
 router.post(
-  "/createProject",
+  "/create",
   createProjectValidator(),
   validate,
   isAuth,
   createProject,
 );
-router.post(
+router.patch(
   "/update/:projectId",
   updateProjectValidator(),
   validate,
   isAuth,
   updateProject,
 );
-router.post("/delete/:projectId", isAuth, deleteProject);
+router.delete("/delete/:projectId", isAuth, deleteProject);
 
 router.post(
   "/:projectId/add-member/:memberId",

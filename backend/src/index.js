@@ -15,6 +15,7 @@ import healthCheckRoute from "./routes/health-check.routes.js";
 import authRoute from "./routes/auth.routes.js";
 import userRoute from "./routes/user.routes.js";
 import projectRoute from "./routes/project.routes.js";
+import noteRoute from "./routes/note.routes.js";
 
 const PORT = process.env.PORT || 8080;
 
@@ -30,9 +31,9 @@ app.use("/api/v1", healthCheckRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/project", projectRoute);
+app.use("/api/v1/project", noteRoute);
 
 app.listen(PORT, () => {
   connectDB();
   console.log(`Server is running on https://localhost:${PORT}/`);
 });
- 
