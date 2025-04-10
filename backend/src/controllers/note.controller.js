@@ -9,7 +9,23 @@ const getNotes = asyncHandler(async (req, res) => {
   // get projectId and find
   // send res
   const { projectId } = req.params;
-  const projectNotes = await ProjectNote.find({ project: projectId });
+  const projectNotes = await ProjectNote.find({ project: projectId })
+    .populate([
+      {
+        path: "project",
+        select: "_id name description",
+        populate: {
+          path: "createdBy",
+          select: "_id fullname username email avatar role",
+        },
+      },
+      {
+        path: "createdBy",
+        select: "_id fullname username email avatar role",
+      },
+    ])
+    .sort({ createdAt: -1 });
+
   if (!projectNotes || !projectNotes.length)
     throw new ApiError(404, "Project Notes not found");
 
@@ -29,7 +45,20 @@ const getNoteById = asyncHandler(async (req, res) => {
   const { projectId, noteId } = req.params;
   const projectNote = await ProjectNote.findOne({
     $and: [{ project: projectId }, { _id: noteId }],
-  });
+  }).populate([
+    {
+      path: "project",
+      select: "_id name description",
+      populate: {
+        path: "createdBy",
+        select: "_id fullname username email avatar role",
+      },
+    },
+    {
+      path: "createdBy",
+      select: "_id fullname username email avatar role",
+    },
+  ]);
   if (!projectNote) throw new ApiError(404, "No Project Note");
 
   res
@@ -58,12 +87,27 @@ const createNote = asyncHandler(async (req, res) => {
   });
   if (!newProjectNote) throw new ApiError(500, "Failed to create Project Note");
 
+  const projectNote = await ProjectNote.findById(newProjectNote._id).populate([
+    {
+      path: "project",
+      select: "_id name content",
+      populate: {
+        path: "createdBy",
+        select: "_id fullname username email avatar role",
+      },
+    },
+    {
+      path: "createdBy",
+      select: "_id fullname username email avatar role",
+    },
+  ]);
+
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { newProjectNote },
+        { newProjectNote: projectNote },
         "Project Note created successfully",
       ),
     );
@@ -80,7 +124,20 @@ const updateNote = asyncHandler(async (req, res) => {
     },
     { content: content },
     { new: true },
-  );
+  ).populate([
+    {
+      path: "project",
+      select: "_id name content",
+      populate: {
+        path: "createdBy",
+        select: "_id fullname username email avatar role",
+      },
+    },
+    {
+      path: "createdBy",
+      select: "_id fullname username email avatar role",
+    },
+  ]);
 
   if (!updatedProjectNote) throw new ApiError(404, "Project Note not found");
 

@@ -41,7 +41,7 @@ router.post(
   createNote,
 );
 router.patch(
-  "/:projectId/note/update/noteId",
+  "/:projectId/note/update/:noteId",
   updateNoteValidator(),
   validate,
   isAuth,

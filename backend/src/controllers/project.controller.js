@@ -11,7 +11,9 @@ const getProjects = asyncHandler(async (req, res) => {
   // 1. check user login or not
   // 2. find projects and remove sensitive data
   // 3. send res
-  const projects = await Project.find({ createdBy: req.userId });
+  const projects = await Project.find({ createdBy: req.userId })
+    .populate("createdBy", "_id fullname username email avatar role")
+    .sort({ createdAt: -1 });
   if (!projects || !projects.length)
     res
       .status(404)
@@ -45,7 +47,7 @@ const getProjectById = asyncHandler(async (req, res) => {
   const project = await Project.findOne({
     _id: validId,
     createdBy: req.userId,
-  });
+  }).populate("createdBy", "_id fullname username email avatar role");
 
   if (!project)
     res
@@ -74,12 +76,17 @@ const createProject = asyncHandler(async (req, res) => {
 
   if (!newProject) throw new ApiError(404, "Failed to create project");
 
+  const project = await Project.findById(newProject._id).populate(
+    "createdBy",
+    "_id fullname username email avatar role",
+  );
+
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { newProject: newProject },
+        { newProject: project },
         "Project created successfully",
       ),
     );
@@ -109,7 +116,7 @@ const updateProject = asyncHandler(async (req, res) => {
       description,
     },
     { new: true },
-  );
+  ).populate("createdBy", "_id fullname username email avatar role");
 
   if (!updatedProject) throw new ApiError(404, "Failed to update project");
 
@@ -160,10 +167,10 @@ const addMemberToProject = asyncHandler(async (req, res) => {
       "You cannot add yourself as a member to the project",
     );
 
-  const projectMember = await ProjectMember.findOne({
+  const existProjectMember = await ProjectMember.findOne({
     $and: [{ project: projectId }, { user: memberId }],
   });
-  if (projectMember)
+  if (existProjectMember)
     throw new ApiError(403, "Member already exists in the project");
 
   const newProjectMember = await ProjectMember.create({
@@ -174,12 +181,29 @@ const addMemberToProject = asyncHandler(async (req, res) => {
 
   if (!newProjectMember) throw new ApiError(404, "Faild to Add Project Member");
 
+  const projectMember = await ProjectMember.findById(
+    newProjectMember._id,
+  ).populate([
+    {
+      path: "user",
+      select: "_id fullname username email role avatar",
+    },
+    {
+      path: "project",
+      select: "_id name description",
+      populate: {
+        path: "createdBy",
+        select: "_id fullname username email role avatar",
+      },
+    },
+  ]);
+
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { projectMember: newProjectMember },
+        { newProjectMember: projectMember },
         "Member add successfully",
       ),
     );
@@ -199,7 +223,25 @@ const getProjectMembers = asyncHandler(async (req, res) => {
   const validId = new mongoose.Types.ObjectId(projectId);
   if (!validId) throw new ApiError(401, "Invalid projectId");
 
-  const projectMembers = await ProjectMember.find({ project: projectId });
+  const projectMembers = await ProjectMember.find({
+    project: projectId,
+  })
+    .populate([
+      {
+        path: "user",
+        select: "_id fullname username email role avatar",
+      },
+      {
+        path: "project",
+        select: "_id name description",
+        populate: {
+          path: "createdBy",
+          select: "_id fullname username email role avatar",
+        },
+      },
+    ])
+    .sort({ createdAt: -1 });
+
   if (!projectMembers || !projectMembers.length)
     throw new ApiError(404, "Project Member not found");
 
@@ -244,7 +286,21 @@ const updateMemberRole = asyncHandler(async (req, res) => {
     { project: projectId, user: memberId },
     { role: role },
     { new: true },
-  );
+  ).populate([
+    {
+      path: "user",
+      select: "_id fullname username email role avatar",
+    },
+    {
+      path: "project",
+      select: "_id name description",
+      populate: {
+        path: "createdBy",
+        select: "_id fullname username email role avatar",
+      },
+    },
+  ]);
+
   if (!updatedProjectMember)
     throw new ApiError(403, "Failed to update member role");
 

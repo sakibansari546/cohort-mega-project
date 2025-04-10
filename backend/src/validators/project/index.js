@@ -21,19 +21,22 @@ const createProjectValidator = () => {
 
 const updateProjectValidator = () => {
   return [
-    param("projectId").trim().notEmpty().withMessage("projectId is required"),
+    param("projectId")
+      .trim()
+      .notEmpty()
+      .withMessage("projectId is required")
+      .isMongoId()
+      .withMessage("Invalid projectId format"),
 
     body("name")
       .trim()
-      .notEmpty()
-      .withMessage("Project name is required")
+      .optional({ checkFalsy: true })
       .isLength({ min: 3, max: 40 })
       .withMessage("Project name must be between 3 and 40 characters"),
 
     body("description")
       .trim()
-      .notEmpty()
-      .withMessage("Project description is required")
+      .optional({ checkFalsy: true })
       .isLength({ min: 10, max: 200 })
       .withMessage("Project description must be between 10 and 200 characters"),
   ];
