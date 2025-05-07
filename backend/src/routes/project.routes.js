@@ -9,8 +9,10 @@ import {
   deleteMember,
   deleteProject,
   getProjectById,
+  getProjectForMember,
   getProjectMembers,
   getProjects,
+  getProjectsForMembers,
   searchMemberForAdding,
   updateMemberRole,
   updateProject,
@@ -32,8 +34,8 @@ router.get("/projects", isAuth, getProjects);
 router.get("/:projectId", isAuth, getProjectById);
 
 // Two routes for User Enrolled in Projects
-// 1.
-// 2.
+router.get("/projects/for-members", isAuth, getProjectsForMembers);
+router.get("/:projectId/for-members", isAuth, getProjectForMember);
 
 router.post(
   "/create",

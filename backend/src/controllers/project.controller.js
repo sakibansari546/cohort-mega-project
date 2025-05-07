@@ -58,6 +58,55 @@ const getProjectById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { project }, "Project retrieved successfully"));
 });
 
+const getProjectsForMembers = asyncHandler(async (req, res) => {
+  const projects = await ProjectMember.find({
+    user: req.userId,
+    role: {
+      $ne: UserRoleEnum.ADMIN,
+    },
+  }).populate({
+    path: "project",
+    select: "name description createdBy",
+    populate: {
+      path: "createdBy",
+      select: "_id fullname username email avatar role",
+    },
+  });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, { projects }, "Projects fetched successfully"));
+});
+
+const getProjectForMember = asyncHandler(async (req, res) => {
+  const { projectId } = req.params;
+  if (!projectId) {
+    throw new ApiError(400, "Project id is missing");
+  }
+
+  const project = await ProjectMember.findOne({
+    user: req.userId,
+    project: projectId,
+    role: {
+      $ne: UserRoleEnum.ADMIN,
+    },
+  }).populate({
+    path: "project",
+    select: "name description",
+    populate: {
+      path: "createdBy",
+      select: "_id fullname username email avatar role",
+    },
+  });
+  if (!project) {
+    throw new ApiError(404, "Project not found");
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, { project }, "Project fetched successfully"));
+});
+
 const createProject = asyncHandler(async (req, res) => {
   // create project
   // 1. check user login or not
@@ -355,4 +404,6 @@ export {
   updateMemberRole,
   updateProject,
   searchMemberForAdding,
+  getProjectsForMembers,
+  getProjectForMember,
 };
