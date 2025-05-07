@@ -14,10 +14,9 @@ const getProjects = asyncHandler(async (req, res) => {
   const projects = await Project.find({ createdBy: req.userId })
     .populate("createdBy", "_id fullname username email avatar role")
     .sort({ createdAt: -1 });
-  if (!projects || !projects.length)
-    res
-      .status(404)
-      .json(new ApiResponse(404, { projects: [] }, "No projects found"));
+
+  if (!projects )
+    throw new ApiError(404, "Project not found")
 
   res
     .status(200)

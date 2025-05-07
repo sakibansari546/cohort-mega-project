@@ -11,7 +11,7 @@ const projectSchema = new Schema(
     },
     description: {
       type: String,
-      maxLength: [40, "Project description cannot exceed 40 characters"],
+      maxLength: [200, "Project description cannot exceed 200 characters"],
     },
     createdBy: {
       type: Schema.Types.ObjectId,
