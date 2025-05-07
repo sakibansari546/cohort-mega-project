@@ -5,6 +5,7 @@ import ApiError from "../utils/api-error.js";
 import ApiResponse from "../utils/api-response.js";
 import asyncHandler from "../utils/async-handler.js";
 import mongoose from "mongoose";
+import { UserRoleEnum } from "../utils/constants.js";
 
 const getProjects = asyncHandler(async (req, res) => {
   // get all projects
@@ -15,8 +16,7 @@ const getProjects = asyncHandler(async (req, res) => {
     .populate("createdBy", "_id fullname username email avatar role")
     .sort({ createdAt: -1 });
 
-  if (!projects )
-    throw new ApiError(404, "Project not found")
+  if (!projects) throw new ApiError(404, "Project not found");
 
   res
     .status(200)
@@ -73,19 +73,30 @@ const createProject = asyncHandler(async (req, res) => {
     createdBy: req.userId,
   });
 
-  if (!newProject) throw new ApiError(404, "Failed to create project");
+  const projectMember = await ProjectMember.create({
+    user: req.userId,
+    project: newProject._id,
+    role: UserRoleEnum.ADMIN,
+  });
 
-  const project = await Project.findById(newProject._id).populate(
-    "createdBy",
-    "_id fullname username email avatar role",
-  );
+  if (!newProject) throw new ApiError(500, "Failed to create project");
+
+  const project = await ProjectMember.findById(projectMember._id)
+    .populate({
+      path: "user",
+      select: "_id fullname username email avatar role",
+    })
+    .populate({
+      path: "project",
+      select: "name description",
+    });
 
   res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { newProject: project },
+        { project: project },
         "Project created successfully",
       ),
     );
@@ -165,6 +176,11 @@ const addMemberToProject = asyncHandler(async (req, res) => {
       401,
       "You cannot add yourself as a member to the project",
     );
+
+  const existUser = await User.findById(memberId);
+  if (!existUser) {
+    throw new ApiError(400, "User not exist");
+  }
 
   const existProjectMember = await ProjectMember.findOne({
     $and: [{ project: projectId }, { user: memberId }],

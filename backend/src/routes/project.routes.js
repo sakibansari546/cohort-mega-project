@@ -1,6 +1,8 @@
 import { Router } from "express";
 
 import { isAuth } from "../middleware/isAuth.middleware.js";
+import { validateProjectPermission } from "../middleware/validate-permissions.middlerware.js";
+
 import {
   addMemberToProject,
   createProject,
@@ -22,11 +24,16 @@ import {
   updateProjectValidator,
 } from "../validators/project/index.js";
 import { validate } from "../middleware/validate.middleware.js";
+import { UserRoleEnum } from "../utils/constants.js";
 
 const router = Router();
 
 router.get("/projects", isAuth, getProjects);
 router.get("/:projectId", isAuth, getProjectById);
+
+// Two routes for User Enrolled in Projects
+// 1.
+// 2.
 
 router.post(
   "/create",
@@ -40,15 +47,23 @@ router.patch(
   updateProjectValidator(),
   validate,
   isAuth,
+  validateProjectPermission([UserRoleEnum.ADMIN, UserRoleEnum.ADMIN]),
   updateProject,
 );
-router.delete("/delete/:projectId", isAuth, deleteProject);
+router.delete(
+  "/delete/:projectId",
+  isAuth,
+  validateProjectPermission([UserRoleEnum.ADMIN]),
+  deleteProject,
+);
 
+// Project Members
 router.post(
   "/:projectId/add-member/:memberId",
   addMemberToProjectValidator(),
   validate,
   isAuth,
+  validateProjectPermission([UserRoleEnum.ADMIN, UserRoleEnum.PROJECt_ADMIN]),
   addMemberToProject,
 );
 router.delete(
@@ -56,6 +71,7 @@ router.delete(
   deleteMemberValidator(),
   validate,
   isAuth,
+  validateProjectPermission([UserRoleEnum.ADMIN, UserRoleEnum.PROJECt_ADMIN]),
   deleteMember,
 );
 router.patch(
@@ -63,10 +79,16 @@ router.patch(
   updateMemberRoleValidator(),
   validate,
   isAuth,
+  validateProjectPermission([UserRoleEnum.ADMIN, UserRoleEnum.PROJECt_ADMIN]),
   updateMemberRole,
 );
 
-router.post("/search-member-for-add", isAuth, searchMemberForAdding);
+router.post(
+  "/search-member-for-add",
+  isAuth,
+  validateProjectPermission([UserRoleEnum.ADMIN, UserRoleEnum.PROJECt_ADMIN]),
+  searchMemberForAdding,
+);
 
 router.get("/:projectId/project-members", isAuth, getProjectMembers);
 
