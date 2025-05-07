@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { isAuth } from "../middleware/isAuth.middleware.js";
+import { validateProjectPermission } from "../middleware/validate-permissions.middlerware.js";
+
 import {
   createNote,
   deleteNote,
@@ -15,6 +17,7 @@ import {
   updateNoteValidator,
 } from "../validators/note/index.js";
 import { validate } from "../middleware/validate.middleware.js";
+import { UserRoleEnum } from "../utils/constants.js";
 
 const router = Router();
 
@@ -23,6 +26,11 @@ router.get(
   getNotesValidator(),
   validate,
   isAuth,
+  validateProjectPermission([
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.PROJECt_ADMIN,
+    UserRoleEnum.MEMBER,
+  ]),
   getNotes,
 );
 router.get(
@@ -30,6 +38,11 @@ router.get(
   getNoteByIdValidator(),
   validate,
   isAuth,
+  validateProjectPermission([
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.PROJECt_ADMIN,
+    UserRoleEnum.MEMBER,
+  ]),
   getNoteById,
 );
 
@@ -38,6 +51,11 @@ router.post(
   createNoteValidator(),
   validate,
   isAuth,
+  validateProjectPermission([
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.PROJECt_ADMIN,
+    UserRoleEnum.MEMBER,
+  ]),
   createNote,
 );
 router.patch(
@@ -45,13 +63,23 @@ router.patch(
   updateNoteValidator(),
   validate,
   isAuth,
+  validateProjectPermission([
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.PROJECt_ADMIN,
+    UserRoleEnum.MEMBER,
+  ]),
   updateNote,
 );
 router.delete(
-  "/projectId/note/delete/noteId",
-  deleteNoteValidator,
+  "/:projectId/note/delete/:noteId",
+  deleteNoteValidator(),
   validate,
   isAuth,
+  validateProjectPermission([
+    UserRoleEnum.ADMIN,
+    UserRoleEnum.PROJECt_ADMIN,
+    UserRoleEnum.MEMBER,
+  ]),
   deleteNote,
 );
 

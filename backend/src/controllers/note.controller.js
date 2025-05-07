@@ -26,9 +26,6 @@ const getNotes = asyncHandler(async (req, res) => {
     ])
     .sort({ createdAt: -1 });
 
-  if (!projectNotes || !projectNotes.length)
-    throw new ApiError(404, "Project Notes not found");
-
   res
     .status(200)
     .json(
@@ -120,7 +117,11 @@ const updateNote = asyncHandler(async (req, res) => {
 
   const updatedProjectNote = await ProjectNote.findOneAndUpdate(
     {
-      $and: [{ project: projectId }, { _id: noteId }],
+      $and: [
+        { project: projectId },
+        { _id: noteId },
+        { createdBy: req.userId },
+      ],
     },
     { content: content },
     { new: true },
@@ -155,6 +156,9 @@ const updateNote = asyncHandler(async (req, res) => {
 const deleteNote = asyncHandler(async (req, res) => {
   // delete note
   const { projectId, noteId } = req.params;
+  if (!projectId || !noteId) {
+    throw new ApiError(400, "projectId or noteId is missing");
+  }
   const deleteProjectNote = await ProjectNote.findOneAndDelete({
     $and: [{ project: projectId }, { _id: noteId }],
   });
